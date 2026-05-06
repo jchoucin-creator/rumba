@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Rumba Catalana — Lectura i Comprensió</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:      #1a1108;
+    --rust:     #b84a1a;
+    --rust-lt:  #f5e8df;
+    --gold:     #c8902a;
+    --gold-lt:  #fdf3e1;
+    --blue:     #1d3a5f;
+    --blue-lt:  #e8eef6;
+    --green:    #2d5a2e;
+    --green-lt: #e8f0e8;
+    --border:   #d4c5b0;
+    --bg:       #faf7f2;
+    --paper:    #fffdf9;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; line-height: 1.75; color: var(--ink); background: var(--bg); min-height: 100vh; }
+
+  /* header */
+  .header { background: var(--blue); color: white; padding: 2rem 2rem 0; position: relative; overflow: hidden; }
+  .header::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent, transparent 18px, rgba(255,255,255,.03) 18px, rgba(255,255,255,.03) 19px); pointer-events: none; }
+  .header-inner { max-width: 760px; margin: 0 auto; position: relative; }
+  .header-tag { font-size: .68rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: .4rem; }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.7rem, 5vw, 2.6rem); font-weight: 900; line-height: 1.1; margin-bottom: .3rem; }
+  .header h1 em { color: #f5c97a; font-style: italic; }
+  .header-sub { font-size: .88rem; color: rgba(255,255,255,.65); font-style: italic; margin-bottom: 1rem; }
+  .global-bar { display: flex; align-items: center; gap: 1rem; padding: .5rem 0 1rem; }
+  .global-score { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: #f5c97a; white-space: nowrap; }
+  .global-progress { flex: 1; background: rgba(255,255,255,.2); height: 4px; border-radius: 2px; }
+  .global-progress-bar { height: 100%; background: #f5c97a; border-radius: 2px; width: 0%; transition: width .4s; }
+
+  /* tabs nav */
+  .tabs-nav { display: flex; max-width: 760px; margin: 0 auto; position: relative; z-index: 2; }
+  .tab-btn { flex: 1; padding: .65rem .4rem .55rem; font-family: 'Source Serif 4', serif; font-size: .8rem; font-weight: 600; letter-spacing: .02em; text-align: center; border: none; cursor: pointer; background: rgba(255,255,255,.12); color: rgba(255,255,255,.7); border-radius: 4px 4px 0 0; transition: background .2s, color .2s; }
+  .tab-btn:hover { background: rgba(255,255,255,.2); color: white; }
+  .tab-btn.active { background: var(--bg); color: var(--ink); font-weight: 700; }
+  .tab-btn.active.t1 { color: var(--blue); }
+  .tab-btn.active.t2 { color: var(--rust); }
+  .tab-btn.active.t3 { color: var(--green); }
+  .tab-badge { display: inline-block; width: 1.25rem; height: 1.25rem; border-radius: 50%; font-size: .63rem; font-weight: 700; line-height: 1.25rem; text-align: center; margin-right: .3rem; background: rgba(255,255,255,.25); color: white; vertical-align: middle; }
+  .tab-btn.active.t1 .tab-badge { background: var(--blue); color: white; }
+  .tab-btn.active.t2 .tab-badge { background: var(--rust); color: white; }
+  .tab-btn.active.t3 .tab-badge { background: var(--green); color: white; }
+
+  /* panels */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* main */
+  main { max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  .accent-line { height: 3px; border-radius: 2px; margin-bottom: 1.75rem; background: var(--blue); }
+  .accent-line.t2 { background: var(--rust); }
+  .accent-line.t3 { background: var(--green); }
+
+  /* section label */
+  .section-label { font-size: .68rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; margin-bottom: 1rem; display: flex; align-items: center; gap: .6rem; color: var(--blue); }
+  .section-label.rust { color: var(--rust); }
+  .section-label.green { color: var(--green); }
+  .section-label::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+  /* reading */
+  .reading-block { background: var(--paper); border: 1px solid var(--border); border-left: 4px solid var(--blue); border-radius: 2px; padding: 1.65rem; margin-bottom: 1.5rem; }
+  .reading-block.rust { border-left-color: var(--rust); }
+  .reading-block.green { border-left-color: var(--green); }
+  .reading-block h2 { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: var(--blue); margin-bottom: .9rem; padding-bottom: .5rem; border-bottom: 1px solid var(--border); }
+  .reading-block.rust h2 { color: var(--rust); }
+  .reading-block.green h2 { color: var(--green); }
+  .reading-block p { margin-bottom: .9rem; }
+  .reading-block p:last-child { margin-bottom: 0; }
+  .reading-block strong { color: var(--rust); font-weight: 600; }
+  .reading-block em { color: var(--blue); }
+  .reading-note { font-size: .79rem; color: #888; font-style: italic; margin-top: .9rem; padding-top: .7rem; border-top: 1px dashed var(--border); }
+
+  /* glossary */
+  .glossary { border-radius: 2px; padding: 1rem 1.3rem; margin-bottom: 1.5rem; background: var(--gold-lt); border: 1px solid var(--gold); }
+  .glossary.rust { background: var(--rust-lt); border-color: var(--rust); }
+  .glossary.green { background: var(--green-lt); border-color: var(--green); }
+  .glossary-title { font-size: .68rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); margin-bottom: .65rem; }
+  .glossary.rust .glossary-title { color: var(--rust); }
+  .glossary.green .glossary-title { color: var(--green); }
+  .glossary dl { display: grid; grid-template-columns: auto 1fr; gap: .18rem .7rem; }
+  .glossary dt { font-weight: 600; color: var(--rust); white-space: nowrap; }
+  .glossary dd { font-size: .86rem; color: #555; }
+
+  /* questions */
+  .question { background: var(--paper); border: 1px solid var(--border); border-radius: 3px; padding: 1rem 1.25rem .85rem; margin-bottom: .75rem; transition: border-color .2s, box-shadow .2s; }
+  .question:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(29,58,95,.07); }
+  .question-header { display: flex; align-items: flex-start; gap: .6rem; margin-bottom: .65rem; }
+  .q-num { flex-shrink: 0; width: 1.55rem; height: 1.55rem; background: var(--blue); color: white; font-size: .74rem; font-weight: 700; font-family: 'Playfair Display', serif; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .q-num.rust { background: var(--rust); }
+  .q-num.green { background: var(--green); }
+  .q-type { font-size: .62rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; background: var(--blue-lt); color: var(--blue); padding: .1rem .42rem; border-radius: 20px; margin-top: .1rem; flex-shrink: 0; }
+  .q-type.tf { background: var(--gold-lt); color: var(--gold); }
+  .q-body { flex: 1; }
+  .q-body p { font-size: .94rem; line-height: 1.55; }
+
+  /* choices */
+  .choices { display: flex; flex-direction: column; gap: .38rem; margin-top: .4rem; }
+  .choice-label { display: flex; align-items: flex-start; gap: .5rem; cursor: pointer; padding: .42rem .65rem; border: 1.5px solid var(--border); border-radius: 3px; font-size: .89rem; transition: background .15s, border-color .15s; user-select: none; }
+  .choice-label:hover { background: var(--blue-lt); border-color: var(--blue); }
+  .choice-label input[type=radio] { display: none; }
+  .choice-label.selected { background: var(--blue-lt); border-color: var(--blue); }
+  .choice-label.correct { background: var(--green-lt); border-color: var(--green); color: var(--green); font-weight: 500; }
+  .choice-label.wrong { background: #fdeaea; border-color: #c0392b; color: #c0392b; text-decoration: line-through; }
+  .choice-bullet { font-size: .76rem; font-weight: 700; color: var(--blue); flex-shrink: 0; margin-top: .06rem; }
+
+  /* tf */
+  .tf-wrap { display: flex; gap: .6rem; margin-top: .45rem; }
+  .tf-btn { flex: 1; padding: .5rem; border: 1.5px solid var(--border); border-radius: 3px; background: white; cursor: pointer; font-family: 'Source Serif 4', serif; font-size: .9rem; transition: background .15s, border-color .15s; }
+  .tf-btn:hover { background: var(--blue-lt); border-color: var(--blue); }
+  .tf-btn.selected { background: var(--blue-lt); border-color: var(--blue); font-weight: 600; }
+  .tf-btn.correct { background: var(--green-lt); border-color: var(--green); color: var(--green); font-weight: 600; }
+  .tf-btn.wrong { background: #fdeaea; border-color: #c0392b; color: #c0392b; }
+
+  /* feedback */
+  .feedback { font-size: .81rem; padding: .42rem .7rem; border-radius: 3px; margin-top: .45rem; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok { background: var(--green-lt); color: var(--green); border-left: 3px solid var(--green); }
+  .feedback.err { background: #fdeaea; color: #c0392b; border-left: 3px solid #c0392b; }
+
+  /* tab score */
+  .tab-score { border-radius: 3px; padding: 1rem 1.3rem; margin: 1.1rem 0; display: none; }
+  .tab-score.show { display: flex; align-items: center; gap: 1.1rem; }
+  .tab-score.t1 { background: var(--blue); }
+  .tab-score.t2 { background: var(--rust); }
+  .tab-score.t3 { background: var(--green); }
+  .tab-score-num { font-family: 'Playfair Display', serif; font-size: 2.1rem; font-weight: 900; color: white; line-height: 1; flex-shrink: 0; }
+  .tab-score-info { color: rgba(255,255,255,.8); font-size: .87rem; font-style: italic; }
+  .tab-score-msg { color: white; font-size: .8rem; margin-top: .18rem; }
+
+  /* buttons */
+  .check-btn { display: inline-block; cursor: pointer; background: var(--blue); color: white; font-family: 'Source Serif 4', serif; font-size: .84rem; font-weight: 600; padding: .48rem 1.15rem; border: none; border-radius: 2px; margin-top: .55rem; transition: background .2s; }
+  .check-btn:hover { background: #142d4a; }
+  .check-btn.rust { background: var(--rust); }
+  .check-btn.rust:hover { background: #9a3a12; }
+  .check-btn.green { background: var(--green); }
+  .check-btn.green:hover { background: #1e3e1f; }
+  .next-btn { display: inline-block; cursor: pointer; background: transparent; font-family: 'Source Serif 4', serif; font-size: .84rem; font-weight: 600; padding: .48rem 1.15rem; border: 1.5px solid var(--blue); color: var(--blue); border-radius: 2px; margin-top: .55rem; margin-left: .45rem; transition: all .2s; }
+  .next-btn:hover { background: var(--blue); color: white; }
+
+  footer { text-align: center; font-size: .72rem; color: #aaa; padding: 1.5rem; border-top: 1px solid var(--border); }
+
+  @media (max-width: 520px) {
+    .header { padding: 1.5rem 1rem 0; }
+    main { padding: 1.25rem .9rem 3rem; }
+    .reading-block { padding: 1.1rem 1rem; }
+    .tab-btn { font-size: .72rem; padding: .55rem .25rem; }
+    .glossary dl { grid-template-columns: 1fr; }
+    .glossary dd { padding-left: .55rem; border-left: 2px solid var(--gold); margin-bottom: .28rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-tag">Música · 2n ESO · Lectura i comprensió</div>
+    <h1>La Rumba <em>Catalana</em></h1>
+    <p class="header-sub">Llegeix cada text i respon les preguntes. Pots rellegir sempre que vulguis.</p>
+    <div class="global-bar">
+      <div class="global-score" id="global-score">0 / 12</div>
+      <div class="global-progress"><div class="global-progress-bar" id="gpbar"></div></div>
+    </div>
+  </div>
+  <div class="tabs-nav">
+    <button class="tab-btn t1 active" onclick="showTab(1)"><span class="tab-badge">1</span>Origen i identitat</button>
+    <button class="tab-btn t2" onclick="showTab(2)"><span class="tab-badge">2</span>Instruments i so</button>
+    <button class="tab-btn t3" onclick="showTab(3)"><span class="tab-badge">3</span>La rumba avui</button>
+  </div>
+</header>
+
+<main>
+
+<!-- TAB 1 -->
+<div class="tab-panel active" id="tab1">
+  <div class="accent-line"></div>
+  <div class="section-label">📖 Text 1 — Origen i identitat</div>
+  <div class="reading-block">
+    <h2>Un gènere fet de moltes cultures</h2>
+    <p>La <strong>rumba catalana</strong> és un gènere musical nascut a Catalunya, principalment als barris populars de Barcelona com el Raval i Gràcia, a partir dels anys cinquanta i seixanta del segle XX. No és un gènere importat: és una creació pròpia, fruit del contacte entre diverses tradicions musicals.</p>
+    <p>Les seves arrels beuen de tres fonts principals: la <strong>música gitana catalana</strong>, hereva d'una llarga tradició de cants i balls; el <strong>flamenc</strong>, que els immigrants andalusos havien portat a Catalunya durant les grans onades migratòries; i les <strong>músiques afrocubanes</strong>, especialment la rumba cubana i el son, que van arribar a través dels vaixells i dels músics que viatjaven entre Cuba i els ports europeus.</p>
+    <p>D'aquesta barreja va sorgir un so nou, alegre, festiu i inconfusiblement català. <em>Peret</em>, considerat el <strong>rei de la rumba</strong>, va ser el gran pioner, però aviat van aparèixer grups com <em>Los Amigos de Gràcia</em> i <em>Los Sírex</em>, que van popularitzar el gènere als barris i les festes majors de tot Catalunya.</p>
+    <p class="reading-note">💡 El concepte clau és el de <strong>mestissatge</strong>: un gènere pot néixer de la combinació creativa de diverses cultures, sense pertànyer exclusivament a cap d'elles.</p>
+  </div>
+  <div class="glossary">
+    <div class="glossary-title">📚 Vocabulari</div>
+    <dl>
+      <dt>Mestissatge</dt><dd>Barreja de cultures que dóna lloc a alguna cosa nova.</dd>
+      <dt>Flamenc</dt><dd>Gènere musical d'origen andalús, vinculat a la cultura gitana del sud d'Espanya.</dd>
+      <dt>Afrocubà</dt><dd>Relatiu a la barreja de les cultures africanes i cubanes en la música.</dd>
+      <dt>Pioner/a</dt><dd>Persona que és la primera a fer o introduir alguna cosa.</dd>
+    </dl>
+  </div>
+
+  <div class="section-label">✏️ Preguntes — Text 1</div>
+
+  <div class="question" id="q1">
+    <div class="question-header"><div class="q-num">1</div><div class="q-body"><span class="q-type">Opció múltiple</span><p style="margin-top:.32rem">On va néixer la rumba catalana?</p></div></div>
+    <div class="choices">
+      <label class="choice-label" onclick="pick(this,'q1','A')"><input type="radio" name="q1"><span class="choice-bullet">A</span>A Andalusia, als barris de Sevilla i Cadis.</label>
+      <label class="choice-label" onclick="pick(this,'q1','B')"><input type="radio" name="q1"><span class="choice-bullet">B</span>Als barris populars de Barcelona, com el Raval i Gràcia.</label>
+      <label class="choice-label" onclick="pick(this,'q1','C')"><input type="radio" name="q1"><span class="choice-bullet">C</span>A Cuba, exportada pels músics que viatjaven a Europa.</label>
+      <label class="choice-label" onclick="pick(this,'q1','D')"><input type="radio" name="q1"><span class="choice-bullet">D</span>A Madrid, durant els anys quaranta de la postguerra.</label>
+    </div>
+    <div class="feedback" id="fb-q1"></div>
+  </div>
+
+  <div class="question" id="q2">
+    <div class="question-header"><div class="q-num">2</div><div class="q-body"><span class="q-type">Opció múltiple</span><p style="margin-top:.32rem">Quines tres tradicions musicals van confluir en el naixement de la rumba catalana?</p></div></div>
+    <div class="choices">
+      <label class="choice-label" onclick="pick(this,'q2','A')"><input type="radio" name="q2"><span class="choice-bullet">A</span>La sardana, el jazz i la música occitana.</label>
+      <label class="choice-label" onclick="pick(this,'q2','B')"><input type="radio" name="q2"><span class="choice-bullet">B</span>La música gitana catalana, el flamenc i les músiques afrocubanes.</label>
+      <label class="choice-label" onclick="pick(this,'q2','C')"><input type="radio" name="q2"><span class="choice-bullet">C</span>El rock and roll americà, el funk i la música occitana.</label>
+      <label class="choice-label" onclick="pick(this,'q2','D')"><input type="radio" name="q2"><span class="choice-bullet">D</span>El bolero, la bossa nova i el tango argentí.</label>
+    </div>
+    <div class="feedback" id="fb-q2"></div>
+  </div>
+
+  <div class="question" id="q3">
+    <div class="question-header"><div class="q-num">3</div><div class="q-body"><span class="q-type tf">Vertader / Fals</span><p style="margin-top:.32rem">Peret és considerat el «rei de la rumba» i va ser un dels primers artistes del gènere.</p></div></div>
+    <div class="tf-wrap">
+      <button class="tf-btn" onclick="pickTF(this,'q3','V')">✓ Vertader</button>
+      <button class="tf-btn" onclick="pickTF(this,'q3','F')">✗ Fals</button>
+    </div>
+    <div class="feedback" id="fb-q3"></div>
+  </div>
+
+  <div class="question" id="q4">
+    <div class="question-header"><div class="q-num">4</div><div class="q-body"><span class="q-type">Opció múltiple</span><p style="margin-top:.32rem">Quin terme descriu millor la naturalesa de la rumba catalana com a gènere?</p></div></div>
+    <div class="choices">
+      <label class="choice-label" onclick="pick(this,'q4','A')"><input type="radio" name="q4"><span class="choice-bullet">A</span>Importat.</label>
+      <label class="choice-label" onclick="pick(this,'q4','B')"><input type="radio" name="q4"><span class="choice-bullet">B</span>Mestís.</label>
+      <label class="choice-label" onclick="pick(this,'q4','C')"><input type="radio" name="q4"><span class="choice-bullet">C</span>Andalús.</label>
+      <label class="choice-label" onclick="pick(this,'q4','D')"><input type="radio" name="q4"><span class="choice-bullet">D</span>Clàssic.</label>
+    </div>
+    <div class="feedback" id="fb-q4"></div>
+  </div>
+
+  <div class="tab-score t1" id="score1"></div>
+  <button class="check-btn" onclick="checkTab(1)">Comprova les respostes ✓</button>
+  <button class="next-btn" onclick="showTab(2)">Text 2 →</button>
+</div>
+
+<!-- TAB 2 -->
+<div class="tab-panel" id="tab2">
+  <div class="accent-line t2"></div>
+  <div class="section-label rust">📖 Text 2 — Instruments i so</div>
+  <div class="reading-block rust">
+    <h2>Com sona un grup de rumba</h2>
+    <p>El so característic de la rumba catalana prové d'una combinació molt específica d'instruments. La <strong>guitarra rumbera</strong> és l'instrument protagonista: no tan sols toca la melodia i els acords, sinó que el guitarrista fa servir la caixa de la guitarra com a instrument de percussió, colpejant-la rítmicament.</p>
+    <p>El ritme de base s'articula habitualment en un <strong>compàs de 4/4</strong>, és a dir, quatre temps per compàs. Un dels elements tècnics més característics és el <strong>ventilador</strong>: una seqüència de cops de mà i dits sobre la guitarra o les palmes que crea un efecte sonor molt ràpid i reconeixible, com si «ventilés» la música.</p>
+    <p>A les formacions de rumba també hi participen habitualment el <strong>baix elèctric</strong>, que marca el pols harmònic, i diversos instruments de <strong>percussió</strong> com ara el cajón, el pandero o les congas. La <strong>veu</strong>, sovint en grup, és l'element expressiu central: les estrofes, generalment improvisades, s'alternen amb tornades que tothom pot cantar.</p>
+    <p>Una forma vocal molt vinculada a la rumba és el <strong>garrotín</strong>: un estil de copla curta, de caràcter festiu, on el cantant improvisa estrofes de 4 versos sobre una base musical repetida.</p>
+    <p class="reading-note">💡 Fixa't en com cada instrument té una funció diferent: uns marquen el pols, d'altres creen la melodia i d'altres afegeixen color rítmic.</p>
+  </div>
+  <div class="glossary rust">
+    <div class="glossary-title">📚 Vocabulari</div>
+    <dl>
+      <dt>Ventilador</dt><dd>Tècnica de cops ràpids de mà característica de la rumba.</dd>
+      <dt>Cajón</dt><dd>Caixa de fusta d'origen peruà que funciona com a instrument de percussió.</dd>
+      <dt>Garrotín</dt><dd>Estil vocal festiu on el cantant improvisa estrofes de quatre versos.</dd>
+      <dt>Compàs 4/4</dt><dd>Estructura de quatre temps per compàs, habitual en la música popular.</dd>
+    </dl>
+  </div>
+
+  <div class="section-label rust">✏️ Preguntes — Text 2</div>
+
+  <div class="question" id="q5">
+    <div class="question-header"><div class="q-num rust">5</div><div class="q-body"><span class="q-type">Opció múltiple</span><p style="margin-top:.32rem">Quines dues funcions fa simultàniament la guitarra rumbera?</p></div></div>
+    <div class="choices">
+      <label class="choice-label" onclick="pick(this,'q5','A')"><input type="radio" name="q5"><span class="choice-bullet">A</span>Canta les estrofes i improvisa el garrotín.</label>
+      <label class="choice-label" onclick="pick(this,'q5','B')"><input type="radio" name="q5"><span class="choice-bullet">B</span>Toca melodia i acords, i fa percussió colpejant la caixa.</label>
+      <label class="choice-label" onclick="pick(this,'q5','C')"><input type="radio" name="q5"><span class="choice-bullet">C</span>Marca el pols harmònic i fa el ventilador vocal.</label>
+      <label class="choice-label" onclick="pick(this,'q5','D')"><input type="radio" name="q5"><span class="choice-bullet">D</span>Acompanya el cajón i reforça el baix elèctric.</label>
+    </div>
+    <div class="feedback" id="fb-q5"></div>
+  </div>
+
+  <div class="question" id="q6">
+    <div class="question-header"><div class="q-num rust">6</div><div class="q-body"><span class="q-type">Opció múltiple</span><p style="margin-top:.32rem">Quin element tècnic crea un efecte sonor molt ràpid que «ventila» la música?</p></div></div>
+    <div class="choices">
+      <label class="choice-label" onclick="pick(this,'q6','A')"><input type="radio" name="q6"><span class="choice-bullet">A</span>El garrotín.</label>
+      <label class="choice-label" onclick="pick(this,'q6','B')"><input type="radio" name="q6"><span class="choice-bullet">B</span>El compàs de 4/4.</label>
+      <label class="choice-label" onclick="pick(this,'q6','C')"><input type="radio" name="q6"><span class="choice-bullet">C</span>El cajón.</label>
+      <label class="choice-label" onclick="pick(this,'q6','D')"><input type="radio" name="q6"><span class="choice-bullet">D</span>El ventilador.</label>
+    </div>
+    <div class="feedback" id="fb-q6"></div>
+  </div>
+
+  <div class="question" id="q7">
+    <div class="question-header"><div class="q-num rust">7</div><div class="q-body"><span class="q-type tf">Vertader / Fals</span><p style="margin-top:.32rem">En el garrotín, el cantant sempre segueix una lletra fixa escrita, sense cap improvisació.</p></div></div>
+    <div class="tf-wrap">
+      <button class="tf-btn" onclick="pickTF(this,'q7','V')">✓ Vertader</button>
+      <button class="tf-btn" onclick="pickTF(this,'q7','F')">✗ Fals</button>
+    </div>
+    <div class="feedback" id="fb-q7"></div>
+  </div>
+
+  <div class="question" id="q8">
+    <div class="question-header"><div class="q-num rust">8</div><div class="q-body"><span class="q-type">Opció múltiple</span><p style="margin-top:.32rem">Quina és la funció del baix elèctric en un grup de rumba?</p></div></div>
+    <div class="choices">
+      <label class="choice-label" onclick="pick(this,'q8','A')"><input type="radio" name="q8"><span class="choice-bullet">A</span>Improvisar les estrofes de garrotín.</label>
+      <label class="choice-label" onclick="pick(this,'q8','B')"><input type="radio" name="q8"><span class="choice-bullet">B</span>Marcar el pols harmònic.</label>
+      <label class="choice-label" onclick="pick(this,'q8','C')"><input type="radio" name="q8"><span class="choice-bullet">C</span>Fer el ventilador de percussió.</label>
+      <label class="choice-label" onclick="pick(this,'q8','D')"><input type="radio" name="q8"><span class="choice-bullet">D</span>Cantar la tornada col·lectiva.</label>
+    </div>
+    <div class="feedback" id="fb-q8"></div>
+  </div>
+
+  <div class="tab-score t2" id="score2"></div>
+  <button class="check-btn rust" onclick="checkTab(2)">Comprova les respostes ✓</button>
+  <button class="next-btn" style="color:var(--rust);border-color:var(--rust)" onclick="showTab(3)">Text 3 →</button>
+</div>
+
+<!-- TAB 3 -->
+<div class="tab-panel" id="tab3">
+  <div class="accent-line t3"></div>
+  <div class="section-label green">📖 Text 3 — La rumba avui</div>
+  <div class="reading-block green">
+    <h2>D'ahir a avui: la rumba segueix viva</h2>
+    <p>La rumba catalana ha sabut reinventar-se sense perdre la seva essència. Si als anys seixanta i setanta el so era més acústic i els grups tocaven principalment a les festes de barri, als anys vuitanta i noranta la rumba va incorporar instruments elèctrics i nous recursos sonors que la van apropar al pop i al rock.</p>
+    <p><em>Estopa</em>, format pels germans Muñoz, va aconseguir portar la rumba als grans escenaris a finals dels anys noranta, amb un so que barrejava la tradició rumbera amb el rock urbà. <em>La Pegatina</em> va agafar el relleu amb una proposta encara més multicultural, incorporant metalls, ska i ritmes llatinoamericans a la base rumbera.</p>
+    <p>Avui, la rumba catalana és reconeguda com a <strong>patrimoni cultural immaterial</strong>. Es toca als barris, als festivals, a les escoles i als teatres. Grups com <em>08001</em> continuen portant el gènere a nous públics.</p>
+    <p>La pregunta que planteja la rumba catalana és, en el fons, una pregunta sobre la identitat: <em>Qui som? D'on venim? Com es construeix una cultura?</em> La resposta és clara: d'un mestissatge generós, festiu i compartit.</p>
+    <p class="reading-note">💡 Fixa't en com la rumba ha evolucionat sense perdre les seves arrels. Cada generació l'ha feta seva sense trencar amb el passat.</p>
+  </div>
+  <div class="glossary green">
+    <div class="glossary-title">📚 Vocabulari</div>
+    <dl>
+      <dt>Patrimoni cultural immaterial</dt><dd>Pràctiques i tradicions que una comunitat reconeix com a part de la seva identitat.</dd>
+      <dt>Ska</dt><dd>Gènere musical d'origen jamaicà, caracteritzat per un ritme sincopat i l'ús de metalls.</dd>
+      <dt>Reinventar-se</dt><dd>Canviar i adaptar-se mantenint l'essència pròpia.</dd>
+    </dl>
+  </div>
+
+  <div class="section-label green">✏️ Preguntes — Text 3</div>
+
+  <div class="question" id="q9">
+    <div class="question-header"><div class="q-num green">9</div><div class="q-body"><span class="q-type">Opció múltiple</span><p style="margin-top:.32rem">Quin grup va portar la rumba als grans escenaris a finals dels anys noranta?</p></div></div>
+    <div class="choices">
+      <label class="choice-label" onclick="pick(this,'q9','A')"><input type="radio" name="q9"><span class="choice-bullet">A</span>Los Amigos de Gràcia.</label>
+      <label class="choice-label" onclick="pick(this,'q9','B')"><input type="radio" name="q9"><span class="choice-bullet">B</span>La Pegatina.</label>
+      <label class="choice-label" onclick="pick(this,'q9','C')"><input type="radio" name="q9"><span class="choice-bullet">C</span>Estopa.</label>
+      <label class="choice-label" onclick="pick(this,'q9','D')"><input type="radio" name="q9"><span class="choice-bullet">D</span>08001.</label>
+    </div>
+    <div class="feedback" id="fb-q9"></div>
+  </div>
+
+  <div class="question" id="q10">
+    <div class="question-header"><div class="q-num green">10</div><div class="q-body"><span class="q-type">Opció múltiple</span><p style="margin-top:.32rem">Quins elements va incorporar La Pegatina a la base rumbera?</p></div></div>
+    <div class="choices">
+      <label class="choice-label" onclick="pick(this,'q10','A')"><input type="radio" name="q10"><span class="choice-bullet">A</span>Cordes orquestrals i piano clàssic.</label>
+      <label class="choice-label" onclick="pick(this,'q10','B')"><input type="radio" name="q10"><span class="choice-bullet">B</span>Rock urbà i guitarra elèctrica distorsionada.</label>
+      <label class="choice-label" onclick="pick(this,'q10','C')"><input type="radio" name="q10"><span class="choice-bullet">C</span>Metalls, ska i ritmes llatinoamericans.</label>
+      <label class="choice-label" onclick="pick(this,'q10','D')"><input type="radio" name="q10"><span class="choice-bullet">D</span>Electrònica i sintetitzadors.</label>
+    </div>
+    <div class="feedback" id="fb-q10"></div>
+  </div>
+
+  <div class="question" id="q11">
+    <div class="question-header"><div class="q-num green">11</div><div class="q-body"><span class="q-type tf">Vertader / Fals</span><p style="margin-top:.32rem">La rumba catalana és reconeguda avui com a patrimoni cultural immaterial.</p></div></div>
+    <div class="tf-wrap">
+      <button class="tf-btn" onclick="pickTF(this,'q11','V')">✓ Vertader</button>
+      <button class="tf-btn" onclick="pickTF(this,'q11','F')">✗ Fals</button>
+    </div>
+    <div class="feedback" id="fb-q11"></div>
+  </div>
+
+  <div class="question" id="q12">
+    <div class="question-header"><div class="q-num green">12</div><div class="q-body"><span class="q-type">Opció múltiple</span><p style="margin-top:.32rem">Quina afirmació resumeix millor la idea principal dels tres textos?</p></div></div>
+    <div class="choices">
+      <label class="choice-label" onclick="pick(this,'q12','A')"><input type="radio" name="q12"><span class="choice-bullet">A</span>La rumba catalana és un gènere andalús adaptat a Catalunya.</label>
+      <label class="choice-label" onclick="pick(this,'q12','B')"><input type="radio" name="q12"><span class="choice-bullet">B</span>La rumba és un gènere antic i en declivi, conservat per uns pocs músics.</label>
+      <label class="choice-label" onclick="pick(this,'q12','C')"><input type="radio" name="q12"><span class="choice-bullet">C</span>La rumba catalana és una creació pròpia, nascuda del mestissatge, viva i en evolució.</label>
+      <label class="choice-label" onclick="pick(this,'q12','D')"><input type="radio" name="q12"><span class="choice-bullet">D</span>La rumba és bàsicament música gitana amb elements cubans afegits.</label>
+    </div>
+    <div class="feedback" id="fb-q12"></div>
+  </div>
+
+  <div class="tab-score t3" id="score3"></div>
+  <button class="check-btn green" onclick="checkTab(3)">Comprova les respostes ✓</button>
+</div>
+
+</main>
+<footer>Activitat de lectura i comprensió · La Rumba Catalana · Música 2n ESO</footer>
+
+<script>
+const KEY = {
+  q1:  { c:'B', ok:'✓ Correcte! La rumba va néixer als barris populars de Barcelona.', err:'✗ Rellegeix el primer paràgraf del Text 1.' },
+  q2:  { c:'B', ok:'✓ Perfecte! Música gitana catalana + flamenc + músiques afrocubanes.', err:'✗ Busca les tres fonts al segon paràgraf del Text 1.' },
+  q3:  { c:'V', ok:'✓ Correcte! El text diu explícitament que Peret és el «rei de la rumba» i el gran pioner.', err:'✗ Torna a llegir el tercer paràgraf del Text 1.' },
+  q4:  { c:'B', ok:'✓ Molt bé! «Mestís» defineix un gènere nascut de la barreja de cultures.', err:'✗ El text diu que la rumba «no és un gènere importat» i parla de «mestissatge». Quin terme encaixa?' },
+  q5:  { c:'B', ok:'✓ Correcte! La guitarra toca melodia i acords, i alhora fa percussió sobre la seva caixa.', err:'✗ Torna al primer paràgraf del Text 2.' },
+  q6:  { c:'D', ok:'✓ Exacte! El ventilador és la tècnica que crea aquell efecte ràpid i reconeixible.', err:'✗ Busca al Text 2 la tècnica que descriu com a «ventilar» la música.' },
+  q7:  { c:'F', ok:'✓ Correcte! El garrotín es caracteritza per la improvisació de les estrofes.', err:'✗ Rellegeix el quart paràgraf del Text 2: el cantant improvisa.' },
+  q8:  { c:'B', ok:'✓ Bé! El baix marca el pols harmònic, la base sobre la qual els altres instruments construeixen el so.', err:'✗ Busca la funció del baix al tercer paràgraf del Text 2.' },
+  q9:  { c:'C', ok:'✓ Correcte! Estopa, els germans Muñoz, van ser els que van portar la rumba als grans escenaris.', err:'✗ Rellegeix el segon paràgraf del Text 3 i distingeix entre Estopa i La Pegatina.' },
+  q10: { c:'C', ok:'✓ Molt bé! La Pegatina va incorporar metalls, ska i ritmes llatinoamericans.', err:'✗ Torna al segon paràgraf del Text 3 i llegeix la descripció de La Pegatina.' },
+  q11: { c:'V', ok:'✓ Exacte! El Text 3 ho diu explícitament.', err:'✗ Rellegeix el tercer paràgraf del Text 3.' },
+  q12: { c:'C', ok:'✓ Excel·lent! Has sabut sintetitzar la idea principal dels tres textos.', err:'✗ Pensa: la rumba és pròpia de Catalunya (no andalusa), viva (no en declivi) i nascuda de moltes cultures.' },
+};
+
+const TABS = { 1:['q1','q2','q3','q4'], 2:['q5','q6','q7','q8'], 3:['q9','q10','q11','q12'] };
+const selected = {}, checked = {};
+
+function showTab(n) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab'+n).classList.add('active');
+  document.querySelectorAll('.tab-btn')[n-1].classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function pick(label, qid, val) {
+  if (checked[qid]) return;
+  selected[qid] = val;
+  document.querySelectorAll(`[name="${qid}"]`).forEach(r => r.closest('.choice-label').classList.remove('selected'));
+  label.classList.add('selected');
+}
+
+function pickTF(btn, qid, val) {
+  if (checked[qid]) return;
+  selected[qid] = val;
+  btn.closest('.question').querySelectorAll('.tf-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function checkTab(t) {
+  const qs = TABS[t];
+  let correct = 0;
+  qs.forEach(qid => {
+    const val = selected[qid];
+    const info = KEY[qid];
+    const fb = document.getElementById('fb-'+qid);
+    fb.classList.remove('show','ok','err');
+    if (!val) { fb.textContent='⚠️ No has respost aquesta pregunta.'; fb.classList.add('show','err'); return; }
+    checked[qid] = true;
+    const isTF = val==='V'||val==='F';
+    if (val===info.c) {
+      correct++;
+      fb.textContent=info.ok; fb.classList.add('show','ok');
+      if (!isTF) document.querySelectorAll(`[name="${qid}"]`).forEach(r=>{ if(r.closest('.choice-label').classList.contains('selected')) r.closest('.choice-label').classList.add('correct'); });
+      else document.querySelectorAll(`#${qid} .tf-btn`).forEach(b=>{ if(b.classList.contains('selected')) b.classList.add('correct'); });
+    } else {
+      fb.textContent=info.err; fb.classList.add('show','err');
+      if (!isTF) document.querySelectorAll(`[name="${qid}"]`).forEach(r=>{ if(r.closest('.choice-label').classList.contains('selected')) r.closest('.choice-label').classList.add('wrong'); });
+      else document.querySelectorAll(`#${qid} .tf-btn`).forEach(b=>{ if(b.classList.contains('selected')) b.classList.add('wrong'); });
+    }
+  });
+  const sc = document.getElementById('score'+t);
+  sc.classList.add('show');
+  const msgs = [[4,'🎉 Perfecte! 4 de 4.'],[3,'👏 Molt bé! 3 de 4.'],[2,'💪 Bé! 2 de 4. Rellegeix el text.'],[0,'📖 Repassa el text i torna-ho a intentar.']];
+  const msg = msgs.find(([min])=>correct>=min);
+  sc.innerHTML=`<div class="tab-score-num">${correct}/4</div><div><div class="tab-score-info">respostes correctes en aquest text</div><div class="tab-score-msg">${msg[1]}</div></div>`;
+  updateGlobal();
+}
+
+function updateGlobal() {
+  let c=0;
+  Object.keys(KEY).forEach(qid=>{ if(checked[qid]&&selected[qid]===KEY[qid].c) c++; });
+  document.getElementById('global-score').textContent=c+' / 12';
+  document.getElementById('gpbar').style.width=Math.round(c/12*100)+'%';
+}
+</script>
+</body>
+</html>
