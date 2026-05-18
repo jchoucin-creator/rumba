@@ -1,0 +1,225 @@
+
+<style>
+  .tab-row { display: flex; gap: 0; border-bottom: 0.5px solid var(--color-border-tertiary); margin-bottom: 1.25rem; }
+  .tab { padding: 7px 20px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--color-text-secondary); border: none; background: none; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .tab.active { color: #A32D2D; border-bottom-color: #E24B4A; }
+  .tab:hover:not(.active) { color: var(--color-text-primary); }
+  .voice-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .voice-label { font-size: 12px; font-weight: 500; width: 90px; flex-shrink: 0; text-align: right; padding-right: 8px; border-right: 0.5px solid var(--color-border-tertiary); }
+  .cells { display: flex; gap: 6px; }
+  .cell {
+    width: 48px; height: 48px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 500; border: 0.5px solid var(--color-border-tertiary);
+    transition: transform 0.07s, background 0.07s;
+    user-select: none;
+  }
+  .cell.seca      { background: #FCEBEB; color: #791F1F; border-color: #F09595; }
+  .cell.sorda     { background: #FAEEDA; color: #633806; border-color: #EF9F27; }
+  .cell.silenci   { background: var(--color-background-secondary); color: var(--color-text-tertiary); }
+  .cell.flash-seca    { background: #E24B4A; color: #fff; transform: scale(1.2); border-color: #A32D2D; }
+  .cell.flash-sorda   { background: #BA7517; color: #fff; transform: scale(1.15); border-color: #854F0B; }
+  .cell.flash-silenci { transform: scale(1.05); }
+  .beat-nums { display: flex; gap: 6px; margin-left: 100px; margin-bottom: 4px; }
+  .beat-num { width: 48px; text-align: center; font-size: 11px; color: var(--color-text-tertiary); }
+  .progress-bar { height: 3px; border-radius: 2px; background: var(--color-border-tertiary); margin: 4px 0 1.25rem 100px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #E24B4A; width: 0%; border-radius: 2px; }
+  .controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  .btn-play { display: flex; align-items: center; gap: 8px; padding: 8px 20px; font-size: 14px; font-weight: 500; border-radius: var(--border-radius-md); cursor: pointer; background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); color: var(--color-text-primary); }
+  .btn-play:hover { background: var(--color-background-secondary); }
+  .legend { display: flex; gap: 20px; flex-wrap: wrap; margin: 1rem 0 0.5rem; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--color-text-secondary); }
+  .legend-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+  .nota { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 0.7rem 1rem; font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin-top: 1rem; }
+  .divider { height: 0.5px; background: var(--color-border-tertiary); margin: 1rem 0; }
+</style>
+
+<h2 class="sr-only">Rumba catalana — polirítmia de palmes seques i sordes, patró bàsic i avançat</h2>
+
+<div class="tab-row">
+  <button class="tab active" id="tab-basic" onclick="switchTab('basic')">Patró bàsic</button>
+  <button class="tab" id="tab-avanzat" onclick="switchTab('avanzat')">Variant avançada</button>
+</div>
+
+<div class="beat-nums" id="beat-nums"></div>
+
+<div class="voice-row">
+  <div class="voice-label" style="color:#791F1F;">Palma seca</div>
+  <div class="cells" id="row-seca"></div>
+</div>
+
+<div class="voice-row">
+  <div class="voice-label" style="color:#633806;">Palma sorda</div>
+  <div class="cells" id="row-sorda"></div>
+</div>
+
+<div class="progress-bar"><div class="progress-fill" id="pbar"></div></div>
+
+<div class="controls">
+  <button class="btn-play" id="btn-play" onclick="togglePlay()">
+    <i class="ti ti-player-play" id="play-icon" aria-hidden="true"></i>
+    Reproduir
+  </button>
+  <span style="font-size:14px; color:var(--color-text-secondary);">Tempo:</span>
+  <input type="range" min="60" max="180" value="110" step="1" style="width:110px" oninput="updateBpm(this.value)">
+  <span style="font-size:14px; font-weight:500; min-width:40px; color:var(--color-text-primary)" id="bpm-val">110 bpm</span>
+  <i class="ti ti-volume" aria-hidden="true" style="color:var(--color-text-secondary);"></i>
+  <input type="range" min="0" max="1" value="0.7" step="0.05" style="width:80px" oninput="updateVol(this.value)">
+</div>
+
+<div class="divider"></div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#E24B4A;"></div> Palma seca (S) — so agut</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#BA7517;"></div> Palma sorda (s) — so greu</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--color-background-secondary); border:0.5px solid var(--color-border-tertiary);"></div> Silenci (·)</div>
+</div>
+
+<div class="nota" id="nota-text"></div>
+
+<script>
+const patterns = {
+  basic: [
+    {seca: true,  sorda: false},
+    {seca: false, sorda: false},
+    {seca: false, sorda: false},
+    {seca: false, sorda: true},
+    {seca: true,  sorda: false},
+    {seca: false, sorda: false},
+    {seca: false, sorda: true},
+    {seca: true,  sorda: false},
+  ],
+  avanzat: [
+    {seca: true,  sorda: false},
+    {seca: false, sorda: false},
+    {seca: false, sorda: true},
+    {seca: false, sorda: true},
+    {seca: true,  sorda: false},
+    {seca: false, sorda: false},
+    {seca: false, sorda: true},
+    {seca: true,  sorda: false},
+  ],
+};
+const labels = ['1','+','2','+','3','+','4','+'];
+const notas = {
+  basic: 'Patró bàsic: les palmes seques marquen els temps forts (1, 3 i el darrer +). Les sordes omplen els contratemps del 2 i el 4. Cada veu funciona com una capa rítmica independent.',
+  avanzat: 'Variant avançada: s\'afegeix una palma sorda al contratemps del 2 (+). La veu de les sordes guanya densitat, creant una tensió polirítmica característica de la rumba catalana.',
+};
+
+let currentTab = 'basic';
+
+function renderAll(tab) {
+  const pat = patterns[tab];
+  const bn = document.getElementById('beat-nums');
+  bn.innerHTML = '';
+  labels.forEach(l => {
+    const d = document.createElement('div'); d.className = 'beat-num'; d.textContent = l; bn.appendChild(d);
+  });
+
+  ['seca','sorda'].forEach(voice => {
+    const row = document.getElementById('row-' + voice);
+    row.innerHTML = '';
+    pat.forEach((b, i) => {
+      const active = b[voice];
+      const c = document.createElement('div');
+      c.id = 'cell-' + voice + '-' + i;
+      c.className = 'cell ' + (active ? voice : 'silenci');
+      c.textContent = active ? (voice === 'seca' ? 'S' : 's') : '·';
+      row.appendChild(c);
+    });
+  });
+
+  document.getElementById('nota-text').textContent = notas[tab];
+}
+
+renderAll('basic');
+
+function switchTab(tab) {
+  if (playing) stopPlay();
+  currentTab = tab;
+  document.getElementById('tab-basic').classList.toggle('active', tab === 'basic');
+  document.getElementById('tab-avanzat').classList.toggle('active', tab === 'avanzat');
+  document.getElementById('pbar').style.width = '0%';
+  renderAll(tab);
+}
+
+let audioCtx = null, playing = false, stepIdx = 0, nextTime = 0, timerID = null;
+let bpm = 110, vol = 0.7;
+
+function getCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playClap(time, forte) {
+  const ctx = getCtx();
+  const bufSize = Math.floor(ctx.sampleRate * 0.12);
+  const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < bufSize; i++) {
+    const t = i / ctx.sampleRate;
+    data[i] = (Math.random() * 2 - 1) * Math.exp(-t * (forte ? 28 : 45)) * (forte ? 1 : 0.55);
+  }
+  const src = ctx.createBufferSource(); src.buffer = buf;
+  const f = ctx.createBiquadFilter(); f.type = 'bandpass';
+  f.frequency.value = forte ? 1200 : 900; f.Q.value = forte ? 0.8 : 1.2;
+  const g = ctx.createGain(); g.gain.value = vol * (forte ? 1.0 : 0.6);
+  src.connect(f); f.connect(g); g.connect(ctx.destination);
+  src.start(time);
+}
+
+function stepDuration() { return 60 / bpm / 2; }
+
+function scheduler() {
+  const ctx = getCtx();
+  const pat = patterns[currentTab];
+  while (nextTime < ctx.currentTime + 0.2) {
+    const b = pat[stepIdx];
+    if (b.seca)  playClap(nextTime, true);
+    if (b.sorda) playClap(nextTime, false);
+    scheduleFlash(stepIdx, nextTime);
+    nextTime += stepDuration();
+    stepIdx = (stepIdx + 1) % pat.length;
+  }
+  timerID = setTimeout(scheduler, 50);
+}
+
+function scheduleFlash(idx, time) {
+  const ctx = getCtx();
+  const delay = Math.max(0, (time - ctx.currentTime) * 1000);
+  const dur = stepDuration() * 700;
+  setTimeout(() => {
+    const pat = patterns[currentTab];
+    const b = pat[idx];
+    ['seca','sorda'].forEach(v => {
+      const c = document.getElementById('cell-' + v + '-' + idx);
+      if (!c) return;
+      const active = b[v];
+      c.className = 'cell flash-' + (active ? v : 'silenci');
+      document.getElementById('pbar').style.width = (((idx + 1) / pat.length) * 100) + '%';
+      setTimeout(() => { if (c) c.className = 'cell ' + (active ? v : 'silenci'); }, dur);
+    });
+  }, delay);
+}
+
+function togglePlay() {
+  if (!playing) {
+    const ctx = getCtx();
+    if (ctx.state === 'suspended') ctx.resume();
+    playing = true; stepIdx = 0; nextTime = ctx.currentTime + 0.05;
+    scheduler();
+    document.getElementById('play-icon').className = 'ti ti-player-pause';
+    document.getElementById('btn-play').childNodes[1].textContent = ' Pausar';
+  } else { stopPlay(); }
+}
+
+function stopPlay() {
+  playing = false; clearTimeout(timerID);
+  document.getElementById('pbar').style.width = '0%';
+  document.getElementById('play-icon').className = 'ti ti-player-play';
+  document.getElementById('btn-play').childNodes[1].textContent = ' Reproduir';
+}
+
+function updateBpm(v) { bpm = parseInt(v); document.getElementById('bpm-val').textContent = bpm + ' bpm'; }
+function updateVol(v) { vol = parseFloat(v); }
+</script>
