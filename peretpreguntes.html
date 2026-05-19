@@ -1,0 +1,256 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.quiz-wrap { padding: 1.5rem 0; max-width: 660px; }
+.quiz-title { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.quiz-sub { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.25rem; }
+.progress-bar-wrap { height: 4px; background: var(--color-background-secondary); border-radius: 99px; margin-bottom: 1.25rem; overflow: hidden; }
+.progress-bar-fill { height: 4px; background: #1D9E75; border-radius: 99px; transition: width 0.4s ease; }
+.q-counter { font-size: 12px; color: var(--color-text-tertiary); margin-bottom: 8px; }
+.q-text { font-size: 17px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 1.25rem; line-height: 1.5; }
+.options { display: flex; flex-direction: column; gap: 9px; margin-bottom: 1.25rem; }
+.opt-btn { background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-lg); padding: 13px 16px; font-size: 14px; color: var(--color-text-primary); cursor: pointer; text-align: left; line-height: 1.4; }
+.opt-btn:hover:not(:disabled) { background: var(--color-background-secondary); border-color: var(--color-border-primary); }
+.opt-btn.correct { background: #EAF3DE; border-color: #639922; color: #27500A; }
+.opt-btn.wrong { background: #FCEBEB; border-color: #A32D2D; color: #501313; }
+.opt-btn:disabled { cursor: default; }
+.feedback { font-size: 13px; border-radius: var(--border-radius-md); padding: 11px 13px; margin-bottom: 1.25rem; line-height: 1.6; display: none; }
+.feedback.show { display: block; }
+.feedback.ok { background: #EAF3DE; color: #27500A; border: 0.5px solid #639922; }
+.feedback.fail { background: #FCEBEB; color: #501313; border: 0.5px solid #A32D2D; }
+.nav-btn { background: transparent; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 9px 20px; font-size: 14px; color: var(--color-text-primary); cursor: pointer; }
+.nav-btn:hover:not(:disabled) { background: var(--color-background-secondary); }
+.nav-btn:disabled { opacity: 0.4; cursor: default; }
+.score-wrap { padding: 1.5rem 0; }
+.score-big { font-size: 52px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+.score-lbl { font-size: 15px; color: var(--color-text-secondary); margin-top: 6px; margin-bottom: 1rem; }
+.score-msg { font-size: 15px; color: var(--color-text-primary); margin-bottom: 1.5rem; line-height: 1.6; max-width: 440px; }
+.share-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+.share-card-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+.share-text-box { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px 12px; font-size: 13px; color: var(--color-text-primary); font-family: var(--font-mono); line-height: 1.5; margin-bottom: 10px; white-space: pre-wrap; word-break: break-all; }
+.share-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.share-btn { display: flex; align-items: center; gap: 6px; background: transparent; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 8px 14px; font-size: 13px; color: var(--color-text-primary); cursor: pointer; }
+.share-btn:hover { background: var(--color-background-secondary); }
+.share-btn i { font-size: 16px; }
+.copied-msg { font-size: 12px; color: #27500A; margin-top: 6px; display: none; }
+.copied-msg.show { display: block; }
+.restart-btn { background: transparent; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 10px 24px; font-size: 14px; color: var(--color-text-primary); cursor: pointer; }
+.restart-btn:hover { background: var(--color-background-secondary); }
+.badge { display: inline-block; font-size: 12px; padding: 3px 10px; border-radius: var(--border-radius-md); margin-bottom: 1rem; }
+.badge-green { background: #EAF3DE; color: #27500A; }
+.badge-amber { background: #FAEEDA; color: #633806; }
+.badge-red { background: #FCEBEB; color: #501313; }
+</style>
+
+<div class="quiz-wrap" role="main">
+  <h2 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Qüestionari sobre la primera meitat del documental Peret, jo soc la rumba</h2>
+
+  <div id="quiz-screen">
+    <div class="quiz-title">Peret, jo soc la rumba</div>
+    <div class="quiz-sub">Qüestionari — primera meitat del documental</div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress" style="width:0%"></div></div>
+    <div class="q-counter" id="counter">Pregunta 1 de 10</div>
+    <div class="q-text" id="q-text"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="nav-btn" id="next-btn" disabled onclick="nextQ()">Següent →</button>
+  </div>
+
+  <div id="score-screen" style="display:none">
+    <div class="score-wrap">
+      <div class="score-big" id="score-big"></div>
+      <div class="score-lbl" id="score-lbl"></div>
+      <div class="badge" id="badge"></div>
+      <div class="score-msg" id="score-msg"></div>
+      <div class="share-card">
+        <div class="share-card-title">Comparteix la teva puntuació</div>
+        <div class="share-text-box" id="share-text"></div>
+        <div class="share-btns">
+          <button class="share-btn" onclick="copyText()"><i class="ti ti-copy" aria-hidden="true"></i> Copiar</button>
+          <button class="share-btn" onclick="shareWhatsApp()"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp</button>
+          <button class="share-btn" onclick="shareTwitter()"><i class="ti ti-brand-x" aria-hidden="true"></i> X / Twitter</button>
+          <button class="share-btn" onclick="shareTelegram()"><i class="ti ti-brand-telegram" aria-hidden="true"></i> Telegram</button>
+        </div>
+        <div class="copied-msg" id="copied-msg">Text copiat al porta-retalls!</div>
+      </div>
+      <button class="restart-btn" onclick="restart()">Tornar a intentar-ho</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    q: "De quin lloc de Catalunya era originari Peret?",
+    opts: ["El Raval de Barcelona", "Les barraques de Mataró", "El Poble Sec de Barcelona", "La Barceloneta"],
+    ans: 1,
+    exp: "Peret va néixer i créixer a les barraques de Mataró, des d'on va iniciar la seva aventura artística fins als escenaris de mig món."
+  },
+  {
+    q: "En quin carrer de Barcelona va créixer Peret?",
+    opts: ["Carrer de Sant Pere", "Carrer de la Cera", "Carrer de la Mercè", "Carrer del Carme"],
+    ans: 1,
+    exp: "Peret va créixer al carrer de la Cera, un dels guetos gitanos de Barcelona, on la comunitat romaní s'hi va establir per primera vegada a la península Ibèrica."
+  },
+  {
+    q: "Fa quants anys aproximadament la comunitat romaní es va establir per primera vegada a la península Ibèrica, al barri on va créixer Peret?",
+    opts: ["Fa més de 200 anys", "Fa més de 300 anys", "Fa més de 400 anys", "Fa més de 500 anys"],
+    ans: 2,
+    exp: "Segons el documental, la comunitat romaní es va establir per primera vegada a la península Ibèrica fa més de 400 anys, precisament al barri on va créixer Peret."
+  },
+  {
+    q: "Quins tres elements musicals va barrejar Peret per crear la rumba catalana?",
+    opts: ["Jazz, blues i soul", "Mambo, tanguillo i rock", "Salsa, cumbia i flamenc", "Bolero, tango i swing"],
+    ans: 1,
+    exp: "El documental descriu la rumba catalana com la barreja d'una mica de mambo, un rajolí de tanguillo i una mica de rock."
+  },
+  {
+    q: "Quin any va conquistar la cançó 'Borriquito' els escenaris de mig món?",
+    opts: ["1965", "1966", "1968", "1971"],
+    ans: 2,
+    exp: "Segons el documental, el 1968 'Borriquito' es va escoltar per emissores de tota Europa i Amèrica Llatina, tot i que altres fonts situen el llançament del single el 1971."
+  },
+  {
+    q: "Quantes setmanes va estar 'Borriquito' a les llistes d'èxits d'Alemanya?",
+    opts: ["Tres setmanes", "Cinc setmanes", "Set setmanes", "Dues setmanes"],
+    ans: 3,
+    exp: "Segons el documental, 'Borriquito' va estar dues setmanes a les llistes d'èxits d'Alemanya, i set setmanes a les d'Holanda."
+  },
+  {
+    q: "Quantes setmanes va estar 'Borriquito' a les llistes d'èxits d'Holanda?",
+    opts: ["Tres setmanes", "Cinc setmanes", "Set setmanes", "Deu setmanes"],
+    ans: 2,
+    exp: "La cançó 'Borriquito' va arribar a estar fins a set setmanes a les llistes de grans èxits d'Holanda."
+  },
+  {
+    q: "De quants músics estava format el grup de Peret quan interpretava 'Borriquito'?",
+    opts: ["Dos músics", "Tres músics", "Cinc músics", "Una gran orquestra"],
+    ans: 1,
+    exp: "El grup eren tres gitanos catalans: Peret a la guitarra i dos palmeros. Amb tan sols una guitarra a ritme de ventilador i dos palmeros van crear un nou so que va conquerir mig món."
+  },
+  {
+    q: "Quin instrument principal feia servir Peret per acompanyar la seva música?",
+    opts: ["El violí", "El baix elèctric", "La guitarra", "El piano"],
+    ans: 2,
+    exp: "Peret tocava la guitarra, descrita al documental com 'una guitarra a ritme de ventilador', acompanyat de dos palmeros."
+  },
+  {
+    q: "Qui va batejar el nou gènere musical com a 'rumba catalana'?",
+    opts: ["El propi Peret", "Els mitjans de comunicació", "El públic dels concerts", "Les discogràfiques internacionals"],
+    ans: 1,
+    exp: "Aviat els mitjans de comunicació van batejar el nou gènere com a 'rumba catalana'. El seu artífex era Peret, un gitano català nascut a les barraques de Mataró."
+  }
+];
+
+let current = 0, score = 0, answered = false;
+
+function render() {
+  const q = questions[current];
+  document.getElementById('counter').textContent = `Pregunta ${current + 1} de ${questions.length}`;
+  document.getElementById('progress').style.width = `${(current / questions.length) * 100}%`;
+  document.getElementById('q-text').textContent = q.q;
+  const optDiv = document.getElementById('options');
+  optDiv.innerHTML = '';
+  q.opts.forEach((o, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = o;
+    btn.onclick = () => select(i);
+    optDiv.appendChild(btn);
+  });
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('next-btn').disabled = true;
+  answered = false;
+}
+
+function select(idx) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  document.querySelectorAll('.opt-btn').forEach((b, i) => {
+    b.disabled = true;
+    if (i === q.ans) b.classList.add('correct');
+    else if (i === idx && idx !== q.ans) b.classList.add('wrong');
+  });
+  const fb = document.getElementById('feedback');
+  if (idx === q.ans) {
+    score++;
+    fb.className = 'feedback ok show';
+    fb.innerHTML = '<strong>Correcte!</strong> ' + q.exp;
+  } else {
+    fb.className = 'feedback fail show';
+    fb.innerHTML = '<strong>Incorrecte.</strong> ' + q.exp;
+  }
+  document.getElementById('next-btn').disabled = false;
+}
+
+function nextQ() {
+  current++;
+  if (current >= questions.length) showScore();
+  else render();
+}
+
+function getShareText() {
+  const pct = Math.round((score / questions.length) * 100);
+  const stars = pct >= 80 ? '★★★' : pct >= 50 ? '★★☆' : '★☆☆';
+  return `He fet el qüestionari de la primera meitat del documental "Peret, jo soc la rumba" i he obtingut ${score}/${questions.length} (${pct}%) ${stars}\nEl rei de la rumba catalana et repte!`;
+}
+
+function showScore() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('score-screen').style.display = 'block';
+  const pct = Math.round((score / questions.length) * 100);
+  document.getElementById('score-big').textContent = `${score}/${questions.length}`;
+  document.getElementById('score-lbl').textContent = `${pct}% de respostes correctes`;
+  let msg, badgeClass, badgeText;
+  if (pct >= 80) {
+    msg = "Excel·lent! Tens molt present com el documental descriu els orígens de Peret i el naixement de la rumba catalana.";
+    badgeClass = 'badge-green'; badgeText = 'Expert en rumba catalana';
+  } else if (pct >= 50) {
+    msg: "Ben fet! Has captat els moments clau de la primera meitat. Potser val la pena tornar a veure el documental per fixar els detalls.";
+    badgeClass = 'badge-amber'; badgeText = 'Bon coneixedor';
+    msg = "Ben fet! Has captat els moments clau de la primera meitat. Potser val la pena tornar a veure el documental per fixar els detalls.";
+  } else {
+    msg = "Gràcies per participar! Et recomanem revisar la primera meitat del documental per descobrir tots els detalls sobre els orígens de Peret.";
+    badgeClass = 'badge-red'; badgeText = 'Segueix aprenent';
+  }
+  document.getElementById('score-msg').textContent = msg;
+  const badge = document.getElementById('badge');
+  badge.className = 'badge ' + badgeClass;
+  badge.textContent = badgeText;
+  document.getElementById('share-text').textContent = getShareText();
+}
+
+function copyText() {
+  const text = getShareText();
+  navigator.clipboard.writeText(text).then(() => {
+    showCopied();
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'absolute'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    showCopied();
+  });
+}
+
+function showCopied() {
+  const msg = document.getElementById('copied-msg');
+  msg.classList.add('show');
+  setTimeout(() => msg.classList.remove('show'), 2500);
+}
+
+function shareWhatsApp() { openLink('https://wa.me/?text=' + encodeURIComponent(getShareText())); }
+function shareTwitter() { openLink('https://twitter.com/intent/tweet?text=' + encodeURIComponent(getShareText())); }
+function shareTelegram() { openLink('https://t.me/share/url?url=&text=' + encodeURIComponent(getShareText())); }
+
+function restart() {
+  current = 0; score = 0; answered = false;
+  document.getElementById('quiz-screen').style.display = 'block';
+  document.getElementById('score-screen').style.display = 'none';
+  render();
+}
+
+render();
+</script>
