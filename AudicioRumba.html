@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Autoavaluació — Escolta de la Rumba Catalana</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1a1a1a; --muted:#666; --hint:#999;
+    --blue:#1d3a5f; --blue-lt:#e8eef6;
+    --bg:#f7f6f3; --paper:#ffffff; --border:#dcd8d0;
+    --info:#1d6fb8; --info-lt:#e6f0fa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Source Sans 3',system-ui,sans-serif;font-size:16px;line-height:1.6;color:var(--ink);background:var(--bg);min-height:100vh}
+
+  .header{background:var(--blue);color:#fff;padding:2rem 1.5rem;text-align:center}
+  .header-inner{max-width:680px;margin:0 auto}
+  .header-tag{font-size:.7rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:.5rem}
+  .header h1{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,5vw,2.4rem);font-weight:900;line-height:1.15}
+  .header h1 em{color:#f5c97a;font-style:italic}
+
+  main{max-width:680px;margin:0 auto;padding:2rem 1.25rem 4rem}
+  .intro{font-size:14.5px;color:var(--muted);line-height:1.65;margin-bottom:1.75rem;background:var(--paper);border:1px solid var(--border);border-radius:10px;padding:1.1rem 1.3rem}
+  .intro strong{color:var(--ink)}
+
+  .dim{margin-bottom:1.5rem;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--paper)}
+  .dim-head{padding:.9rem 1.15rem;background:#f0eee8}
+  .dim-title{font-size:15px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px}
+  .dim-q{font-size:13px;color:var(--muted);margin-top:3px;line-height:1.5}
+  .levels{display:flex;flex-direction:column}
+  .level{display:flex;align-items:flex-start;gap:12px;padding:.75rem 1.15rem;cursor:pointer;border-top:1px solid var(--border);transition:background .15s}
+  .level:hover{background:#f7f9fc}
+  .level.selected{background:var(--info-lt)}
+  .radio{width:19px;height:19px;border-radius:50%;border:2px solid #bbb;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+  .level.selected .radio{border-color:var(--info)}
+  .level.selected .radio::after{content:'';width:10px;height:10px;border-radius:50%;background:var(--info)}
+  .level-desc{flex:1;font-size:14px;color:var(--ink);line-height:1.45}
+
+  .summary{background:var(--paper);border:1px solid var(--border);border-radius:12px;padding:1.5rem 1.5rem;margin-top:1.75rem;display:none}
+  .summary.show{display:block}
+  .summary-title{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:1rem;text-align:center}
+  .symbol-big{font-size:48px;line-height:1;margin-bottom:.4rem;text-align:center}
+  .symbol-name{font-size:22px;font-weight:600;margin-bottom:.5rem;text-align:center;font-family:'Playfair Display',serif;color:var(--blue)}
+  .symbol-desc{font-size:14.5px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:1.25rem;padding:0 .5rem}
+
+  .report-box{background:var(--blue-lt);border:1px dashed var(--blue);border-radius:10px;padding:1rem 1.2rem;margin:1.25rem 0;text-align:center}
+  .report-box .rb-title{font-size:13px;font-weight:600;color:var(--blue);margin-bottom:.4rem}
+  .report-box .rb-perfil{font-size:20px;font-weight:600;color:var(--blue);font-family:'Playfair Display',serif}
+  .report-box .rb-note{font-size:12.5px;color:var(--muted);margin-top:.5rem;font-style:italic}
+
+  .profile-row{display:flex;align-items:center;gap:10px;margin-bottom:.4rem;font-size:14px;padding:.45rem 0;border-bottom:1px solid var(--border)}
+  .profile-row:last-child{border-bottom:none}
+  .profile-sym{font-size:19px;flex-shrink:0;width:28px;text-align:center}
+  .profile-dim{font-weight:500;flex:1}
+  .profile-lbl{font-size:13px;color:var(--muted)}
+
+  .scale-legend{margin-top:1.25rem;padding-top:1.1rem;border-top:1px solid var(--border)}
+  .legend-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);margin-bottom:.4rem}
+  .legend-sym{font-size:17px;width:26px;text-align:center;flex-shrink:0}
+
+  .btn{display:block;width:100%;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:15px;font-weight:600;padding:.8rem;border-radius:8px;border:none;background:var(--blue);color:#fff;margin-top:1.5rem;transition:background .2s}
+  .btn:hover{background:#142d4a}
+  .btn-copy{background:var(--info);margin-top:1rem;font-size:14px;padding:.65rem}
+  .btn-copy:hover{background:#155a96}
+
+  .hint{font-size:12.5px;color:var(--hint);font-style:italic;margin-top:1rem;line-height:1.5;text-align:center}
+  footer{text-align:center;font-size:12px;color:var(--hint);padding:1.5rem;border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-tag">Música · 2n ESO · Autoavaluació</div>
+    <h1>L'escolta de la <em>Rumba Catalana</em></h1>
+  </div>
+</header>
+
+<main>
+  <div class="intro">
+    Llegeix cada situació i tria la frase que descriu millor <strong>el que has fet realment</strong> durant l'activitat d'escolta. No hi ha respostes bones ni dolentes, i les opcions no estan ordenades de millor a pitjor: respon amb sinceritat. En acabar veuràs el teu <strong>perfil d'escolta</strong>, que hauràs de comunicar al teu professor/a.
+  </div>
+
+  <div id="quiz"></div>
+
+  <div class="summary" id="summary"></div>
+  <button class="btn" onclick="reflect()">Veure el meu perfil d'escolta →</button>
+  <p class="hint">Aquest perfil és per a tu i per compartir amb el teu professor/a. No és una nota: descriu en quin punt del recorregut et trobes com a oient.</p>
+</main>
+
+<footer>Autoavaluació · La Rumba Catalana · Música 2n ESO</footer>
+
+<script>
+const dims = [
+  { icon:'👂', title:"Detecció d'elements sonors", q:'Quan escoltava, quants detalls he estat capaç de distingir?',
+    opts:[
+      "He sentit la música en general, però m'ha costat distingir instruments concrets.",
+      "He distingit els instruments més evidents (la veu, la guitarra) però no els altres.",
+      "He distingit diversos instruments alhora i he notat quan entrava o sortia cadascun.",
+      "He distingit les capes sonores i fins i tot detalls fins com el ventilador o la percussió de la guitarra."
+    ]},
+  { icon:'🗣️', title:'Descripció del caràcter musical', q:'Com he descrit el que sentia a cada cançó?',
+    opts:[
+      "He usat paraules molt generals (m'agrada, és divertida) sense concretar.",
+      "He descrit el caràcter amb adjectius (alegre, enèrgica, festiva).",
+      "He relacionat el caràcter amb elements concrets (el ritme ràpid, les palmes, la veu).",
+      "He usat vocabulari musical de classe (ventilador, garrotín, tornada, mestissatge) per descriure-la."
+    ]},
+  { icon:'🔀', title:'Comparació entre les cançons', q:'He sabut veure què tenen en comú i en què es diferencien?',
+    opts:[
+      "Les he escoltat com a cançons separades, sense comparar-les.",
+      "He notat que s'assemblaven, però no sabria dir ben bé en què.",
+      "He identificat trets compartits (les palmes, el ritme) i alguna diferència.",
+      "He vist com la rumba ha evolucionat amb el temps mantenint la seva essència."
+    ]},
+  { icon:'🌍', title:'Comprensió del mestissatge', q:'A la pregunta de síntesi, com he explicat la barreja de cultures?',
+    opts:[
+      "No he sabut gaire què dir sobre el mestissatge.",
+      "He dit que la rumba barreja cultures, però sense concretar quines.",
+      "He anomenat les cultures d'origen (gitana, flamenca, afrocubana).",
+      "He argumentat amb exemples concrets d'una cançó on es nota la barreja."
+    ]},
+  { icon:'💬', title:'Implicació personal', q:'Com he escrit les meves impressions personals?',
+    opts:[
+      "He escrit el mínim per omplir l'espai.",
+      "He donat la meva opinió, però breument i sense explicar-la.",
+      "He explicat què m'havia semblat i per què, amb les meves paraules.",
+      "He connectat la música amb sensacions, records o coses que conec."
+    ]},
+];
+
+const symbols = ['🎵','🎶','🎼','🎤'];
+const symbolNames = ['Primer contacte','Assaig','Intèrpret','Solista'];
+const symbolDesc = [
+  'Tot just comences a familiaritzar-te amb la música. Cada escolta és el primer pas del teu recorregut.',
+  "Ja t'exercites i comences a dominar els elements. Estàs en ple assaig.",
+  'Toques amb seguretat i comprens el que escoltes. Ja ets un intèrpret amb criteri.',
+  'Has fet teva la música: la captes, la relaciones i hi poses la teva pròpia veu.'
+];
+
+const answers = {};
+
+// build quiz
+const quiz = document.getElementById('quiz');
+dims.forEach((d, di) => {
+  const dim = document.createElement('div');
+  dim.className = 'dim';
+  let levelsHtml = '';
+  d.opts.forEach((opt, oi) => {
+    levelsHtml += '<div class="level" data-dim="'+di+'" data-val="'+oi+'"><div class="radio"></div><div class="level-desc">'+opt+'</div></div>';
+  });
+  dim.innerHTML =
+    '<div class="dim-head"><div class="dim-title">'+d.icon+' '+d.title+'</div><div class="dim-q">'+d.q+'</div></div>'+
+    '<div class="levels">'+levelsHtml+'</div>';
+  quiz.appendChild(dim);
+});
+
+// selection
+document.querySelectorAll('.level').forEach(level => {
+  level.addEventListener('click', () => {
+    const di = level.dataset.dim;
+    const val = parseInt(level.dataset.val);
+    level.parentElement.querySelectorAll('.level').forEach(l => l.classList.remove('selected'));
+    level.classList.add('selected');
+    answers[di] = val;
+  });
+});
+
+function reflect(){
+  const done = Object.keys(answers).length;
+  const s = document.getElementById('summary');
+  if(done < dims.length){
+    s.innerHTML = '<div class="summary-title">Encara et falten respostes</div><p style="text-align:center;color:var(--muted)">Respon les '+dims.length+' situacions per veure el teu perfil. En portes '+done+' de '+dims.length+'.</p>';
+    s.classList.add('show');
+    s.scrollIntoView({behavior:'smooth',block:'nearest'});
+    return;
+  }
+  let rows = '';
+  for(let i=0;i<dims.length;i++){
+    const t = answers[i];
+    rows += '<div class="profile-row"><span class="profile-sym">'+symbols[t]+'</span><span class="profile-dim">'+dims[i].title+'</span><span class="profile-lbl">'+symbolNames[t]+'</span></div>';
+  }
+  const vals = Object.values(answers);
+  const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
+  const overall = Math.round(avg);
+  const weakIdx = vals.indexOf(Math.min(...vals));
+  const strongIdx = vals.indexOf(Math.max(...vals));
+  let extra;
+  if(Math.min(...vals) === Math.max(...vals)){
+    extra = 'El teu perfil és molt equilibrat en totes les dimensions.';
+  } else {
+    extra = 'On et sents més segur/a és en <strong>'+dims[strongIdx].title.toLowerCase()+'</strong>. La dimensió que més pot créixer és <strong>'+dims[weakIdx].title.toLowerCase()+'</strong>: la propera escolta, fixa\'t-hi especialment.';
+  }
+
+  s.innerHTML =
+    '<div class="summary-title">El teu perfil d\'escolta</div>'+
+    '<div class="symbol-big">'+symbols[overall]+'</div>'+
+    '<div class="symbol-name">'+symbolNames[overall]+'</div>'+
+    '<div class="symbol-desc">'+symbolDesc[overall]+'</div>'+
+    '<div class="report-box">'+
+      '<div class="rb-title">📨 Comunica aquest resultat al teu professor/a:</div>'+
+      '<div class="rb-perfil">'+symbols[overall]+' '+symbolNames[overall]+'</div>'+
+      '<div class="rb-note">(és el perfil global que has obtingut)</div>'+
+    '</div>'+
+    rows+
+    '<p style="margin-top:1rem;font-size:14px">'+extra+'</p>'+
+    '<button class="btn btn-copy" onclick="copyResult(\''+symbolNames[overall]+'\')">Copiar el meu perfil per enviar-lo</button>'+
+    '<div class="scale-legend">'+
+      '<div class="legend-item"><span class="legend-sym">🎵</span> Primer contacte — em familiaritzo amb la música</div>'+
+      '<div class="legend-item"><span class="legend-sym">🎶</span> Assaig — m\'exercito i domino els elements</div>'+
+      '<div class="legend-item"><span class="legend-sym">🎼</span> Intèrpret — toco amb seguretat i comprenc</div>'+
+      '<div class="legend-item"><span class="legend-sym">🎤</span> Solista — faig meva la música i hi poso la meva veu</div>'+
+    '</div>';
+  s.classList.add('show');
+  s.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function copyResult(perfil){
+  const text = "El meu perfil d'escolta de la rumba catalana és: " + perfil;
+  navigator.clipboard.writeText(text).then(() => {
+    alert("Perfil copiat:\n\n" + text + "\n\nAra pots enganxar-lo al teu professor/a.");
+  }).catch(() => {
+    alert("El teu perfil és: " + perfil + "\n\nApunta'l i comunica'l al teu professor/a.");
+  });
+}
+</script>
+</body>
+</html>
